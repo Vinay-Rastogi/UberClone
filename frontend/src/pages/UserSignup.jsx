@@ -1,38 +1,48 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import {UserDataContext} from "../context/userContext";
 
 const UserSignup = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
-    const [email,setEmail] = useState("");
-        const [password,setPassword] = useState("");
-        const [firstName,setFirstName] = useState("");
-        const [lastName,setLastName] = useState("");
-        const [userData,setUserData] = useState({});
+  const navigate = useNavigate();
 
-    const submitHandler = (e) => {
+  const {user,setUser} = React.useContext(UserDataContext)
 
-        
+  const submitHandler = async (e) => {
+    e.preventDefault();
 
-        e.preventDefault();
+    const newUser = {
+      fullname: {
+        firstname: firstName,
+        lastname: lastName,
+      },
+      email: email,
+      password: password,
+    };
 
-        setUserData({
-            fullName:{
-                firstName : firstName,
-                lastName : lastName
-            },
-            email : email,
-            password : password
-        })
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`,newUser);
 
+    if(response.status === 200){
 
-        //logic
-
-        setFirstName("");
-        setLastName("");
-        setEmail("");
-        setPassword("");
+       const data = response.data;
+       setUser(data.user);
+       localStorage.setItem('token',data.token);
+       navigate('/home');
 
     }
+
+    //logic
+
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setPassword("");
+  };
 
   return (
     <div className="p-7 h-screen flex flex-col justify-between">
@@ -54,7 +64,9 @@ const UserSignup = () => {
               required
               type="text"
               value={firstName}
-              onChange={(e)=>{setFirstName(e.target.value)}}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+              }}
               placeholder="First name"
             />
             <input
@@ -62,7 +74,9 @@ const UserSignup = () => {
               required
               type="text"
               value={lastName}
-              onChange={(e)=>{setLastName(e.target.value)}}
+              onChange={(e) => {
+                setLastName(e.target.value);
+              }}
               placeholder="Last name"
             />
           </div>
@@ -72,7 +86,9 @@ const UserSignup = () => {
             required
             type="email"
             value={email}
-            onChange={(e) => {setEmail(e.target.value)}}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
             placeholder="email@example.com"
           />
           <h3 className="text-lg font-medium mb-2">Enter Password</h3>
@@ -81,11 +97,13 @@ const UserSignup = () => {
             required
             type="password"
             value={password}
-            onChange={(e)=>{setPassword(e.target.value)}}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
             placeholder="Password"
           />
           <button className="bg-[#111] mt-5 mb-3 text-white font-semibold rounded px-4 py-2 border w-full text-lg placeholder:text-sm">
-            Register
+            Sign up
           </button>
         </form>
         <p className="text-center">
